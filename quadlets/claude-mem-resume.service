@@ -1,0 +1,33 @@
+# Restart claude-mem-worker-container after resume from suspend.
+#
+# systemd's sleep.target is system-level only — user services can't
+# bind to it directly. This service monitors D-Bus for logind's
+# PrepareForSleep signal and restarts the worker when the system
+# wakes up, ensuring stale internal state is cleared.
+#
+# Install:
+#   cp claude-mem-resume.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now claude-mem-resume
+
+[Unit]
+Description=Restart claude-mem worker on resume from suspend
+After=claude-mem-worker-container.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c '\
+    gdbus monitor --system \
+        --dest org.freedesktop.login1 \
+        --object-path /org/freedesktop/login1 | \
+    while read -r line; do \
+        if echo "$line" | grep -q "PrepareForSleep.*false"; then \
+            sleep 2; \
+            systemctl --user restart claude-mem-worker-container.service 2>/dev/null || true; \
+        fi; \
+    done'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,35 @@
+# claude-mem MCP server — launched on-demand by Claude Code via stdio.
+#
+# This quadlet is NOT a long-running service. It defines the container spec
+# so that Claude Code can invoke it via:
+#   podman run --rm -i claude-mem:latest mcp
+#
+# For Claude Code integration, add this to ~/.claude.json:
+#   "mcpServers": {
+#     "claude-mem": {
+#       "command": "podman",
+#       "args": ["run", "--rm", "-i",
+#                "-v", "%h/.claude:/data/claude:ro,z",
+#                "-v", "%h/.claude-mem:/data/claude-mem:z",
+#                "quay.io/danclark/claude-mem:latest", "mcp"]
+#     }
+#   }
+#
+# This file is provided as a reference. Copy to
+# ~/.config/containers/systemd/ only if you want systemd-managed lifecycle.
+
+[Unit]
+Description=claude-mem MCP server (stdio, on-demand)
+
+[Container]
+Image=quay.io/danclark/claude-mem:latest
+Volume=%h/.claude:/data/claude:ro,z
+Volume=%h/.claude-mem:/data/claude-mem:z
+Exec=mcp
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target

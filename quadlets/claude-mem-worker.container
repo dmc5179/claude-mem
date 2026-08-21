@@ -1,0 +1,36 @@
+# claude-mem background worker — continuous session processing.
+#
+# Runs the claude-mem worker service that monitors for new Claude CLI
+# sessions and extracts observations into the SQLite memory index.
+#
+# On suspend/resume: the container process freezes with the system and
+# resumes, but internal state (timers, connections) may be stale.
+# Install claude-mem-resume.service alongside this quadlet to
+# automatically restart the worker on resume from suspend.
+#
+# Install:
+#   cp claude-mem-worker.container ~/.config/containers/systemd/
+#   cp claude-mem-resume.service   ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user start claude-mem-worker-container
+#   systemctl --user enable claude-mem-resume
+
+[Unit]
+Description=claude-mem background worker (continuous session processing)
+After=network-online.target
+
+[Container]
+Image=quay.io/danclark/claude-mem:latest
+Volume=%h/.claude:/data/claude:ro,z
+Volume=%h/.claude-mem:/data/claude-mem:z
+Exec=worker
+AutoUpdate=local
+
+[Service]
+Restart=always
+RestartSec=15
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target
