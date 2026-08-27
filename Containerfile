@@ -49,6 +49,7 @@ RUN microdnf --disableplugin=subscription-manager \
 
 COPY --from=builder /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=builder /usr/local/bin/uv /usr/local/bin/uv
+COPY --from=builder /usr/local/bin/uvx /usr/local/bin/uvx
 COPY --from=builder /build/claude-mem /opt/claude-mem
 
 WORKDIR /opt/claude-mem
