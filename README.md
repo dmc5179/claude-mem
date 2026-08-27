@@ -26,6 +26,14 @@ systemctl --user start claude-mem-worker-container
 systemctl --user enable --now claude-mem-resume
 ```
 
+```
+jq --arg user "$USER" '.mcpServers["claude-mem"] = {
+  "command": "podman",
+  "args": ["run", "--rm", "-i", "-v", "/home/\($user)/.claude:/data/claude:ro,z", "-v", "/home/\($user)/.claude-mem:/data/claude-mem:z", "quay.io/danclark/claude-mem:latest", "mcp"]
+}' ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json
+```
+
+
 ## Documentation
 
 | Guide | Description |
