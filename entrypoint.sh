@@ -16,7 +16,12 @@ case "${MODE}" in
             --db "${CLAUDE_MEM_DB_PATH}" "$@"
         ;;
     worker)
-        exec bun run /opt/claude-mem/plugin/scripts/worker-service.cjs start "$@"
+        # `start` is a hook handler: it forks the real daemon, prints a JSON
+        # ack and exits 0. Under a systemd unit with Restart=always that forks
+        # a child that dies with the container and restarts forever (this
+        # deployment reached 50,645 restarts before it was caught). `--daemon`
+        # is the long-running foreground process systemd should supervise.
+        exec bun run /opt/claude-mem/plugin/scripts/worker-service.cjs --daemon "$@"
         ;;
     server)
         exec bun run /opt/claude-mem/plugin/scripts/server-service.cjs "$@"
