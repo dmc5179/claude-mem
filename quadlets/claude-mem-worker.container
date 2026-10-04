@@ -12,7 +12,7 @@
 #   cp claude-mem-worker.container ~/.config/containers/systemd/
 #   cp claude-mem-resume.service   ~/.config/systemd/user/
 #   systemctl --user daemon-reload
-#   systemctl --user start claude-mem-worker-container
+#   systemctl --user start claude-mem-worker
 #   systemctl --user enable claude-mem-resume
 
 [Unit]

@@ -1,4 +1,4 @@
-# Restart claude-mem-worker-container after resume from suspend.
+# Restart claude-mem-worker after resume from suspend.
 #
 # systemd's sleep.target is system-level only — user services can't
 # bind to it directly. This service monitors D-Bus for logind's
@@ -12,7 +12,7 @@
 
 [Unit]
 Description=Restart claude-mem worker on resume from suspend
-After=claude-mem-worker-container.service
+After=claude-mem-worker.service
 
 [Service]
 Type=simple
@@ -23,7 +23,7 @@ ExecStart=/bin/bash -c '\
     while read -r line; do \
         if echo "$line" | grep -q "PrepareForSleep.*false"; then \
             sleep 2; \
-            systemctl --user restart claude-mem-worker-container.service 2>/dev/null || true; \
+            systemctl --user restart claude-mem-worker.service 2>/dev/null || true; \
         fi; \
     done'
 Restart=always

@@ -22,7 +22,7 @@ mkdir -p ~/.config/containers/systemd/
 cp quadlets/claude-mem-worker.container ~/.config/containers/systemd/
 cp quadlets/claude-mem-resume.service   ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user start claude-mem-worker-container
+systemctl --user start claude-mem-worker
 systemctl --user enable --now claude-mem-resume
 ```
 
