@@ -4,8 +4,7 @@ set -euo pipefail
 MODE="${1:-mcp}"
 shift 2>/dev/null || true
 
-mkdir -p "$(dirname "${CLAUDE_MEM_DB_PATH}")"
-mkdir -p "${CLAUDE_MEM_LOG_DIR}"
+mkdir -p "${CLAUDE_MEM_DATA_DIR}" "${CLAUDE_MEM_DATA_DIR}/logs"
 
 case "${MODE}" in
     mcp)

@@ -23,6 +23,7 @@ After=network-online.target
 Image=quay.io/danclark/claude-mem:latest
 Volume=%h/.claude:/data/claude:ro,z
 Volume=%h/.claude-mem:/data/claude-mem:z
+Environment=CLAUDE_MEM_DATA_DIR=/data/claude-mem
 Exec=worker
 AutoUpdate=local
 

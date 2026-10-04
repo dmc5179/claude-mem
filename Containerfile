@@ -58,9 +58,15 @@ COPY import_sessions.py /opt/claude-mem/import_sessions.py
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# claude-mem resolves its data directory from CLAUDE_MEM_DATA_DIR, falling
+# back to $HOME/.claude-mem. It does NOT read CLAUDE_MEM_DB_PATH or
+# CLAUDE_MEM_LOG_DIR — earlier revisions of this file set those, so every
+# container run silently created a throwaway database under /root/.claude-mem
+# and ignored the mounted volume entirely.
 ENV CLAUDE_DIR=/data/claude
+ENV CLAUDE_MEM_DATA_DIR=/data/claude-mem
+# Kept only for import_sessions.py, which takes an explicit --db path.
 ENV CLAUDE_MEM_DB_PATH=/data/claude-mem/claude-mem.db
-ENV CLAUDE_MEM_LOG_DIR=/data/claude-mem/logs
 
 EXPOSE 37877
 
