@@ -1,12 +1,9 @@
 # claude-mem (Containerized)
 
-> **Read this first.** This container **cannot capture sessions.** claude-mem
-> captures via a Claude Code `PostToolUse` hook that is hardcoded to a host
-> path under `~/.claude/plugins/cache/`, and extraction shells out to the host
-> `claude` CLI. Neither is reachable from inside a container. The container is
-> usable for the read path (`ingest` + `mcp`) only.
+> # ⚠️ DEPRECATED — do not deploy this
 >
-> For working capture, install natively instead:
+> **This container cannot do the job it was built for.** Use the native
+> Claude Code plugin instead:
 >
 > ```bash
 > curl -fsSL https://bun.sh/install | bash        # required; no node fallback
@@ -15,7 +12,27 @@
 > claude plugin update  claude-mem@thedotmack
 > ```
 >
-> See [initial-debug.md](initial-debug.md) for the full root cause analysis.
+> **Why.** Three independent blockers, none of them fixable by configuration:
+>
+> - **Capture is host-side.** claude-mem records via a Claude Code
+>   `PostToolUse` hook that runs on the host, and extraction shells out to the
+>   `claude` CLI, which is not in this image. The `worker` and `server` modes
+>   start cleanly and then never produce an observation.
+> - **`mcp` mode is not a SQLite client.** It is an HTTP client to a worker on
+>   `127.0.0.1`. A per-invocation `podman run --rm -i … mcp` lands in a
+>   different network namespace from the worker container, cold-starts its own
+>   worker, and times out. Co-locating them in a pod would then put two workers
+>   on one SQLite file.
+> - **`ingest` writes an incompatible schema.** `import_sessions.py` creates a
+>   7-column `observations` table; claude-mem 13.x expects ~30 tables and
+>   aborts background init with `no such column: memory_session_id`. The two
+>   are not migratable.
+>
+> The repository is kept for the root cause analysis in
+> [initial-debug.md](initial-debug.md) and because a multi-machine or
+> bun-free deployment could become viable if upstream ever decouples
+> extraction from a local `claude` CLI. The fixes in the current commits make
+> the image *correct* — they do not make it *useful*.
 
 Containerized deployment of [claude-mem](https://github.com/thedotmack/claude-mem) for extracting, indexing, and searching observations from Claude CLI sessions.
 
