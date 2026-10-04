@@ -1,5 +1,22 @@
 # claude-mem (Containerized)
 
+> **Read this first.** This container **cannot capture sessions.** claude-mem
+> captures via a Claude Code `PostToolUse` hook that is hardcoded to a host
+> path under `~/.claude/plugins/cache/`, and extraction shells out to the host
+> `claude` CLI. Neither is reachable from inside a container. The container is
+> usable for the read path (`ingest` + `mcp`) only.
+>
+> For working capture, install natively instead:
+>
+> ```bash
+> curl -fsSL https://bun.sh/install | bash        # required; no node fallback
+> claude plugin marketplace add thedotmack/claude-mem
+> claude plugin install claude-mem@thedotmack
+> claude plugin update  claude-mem@thedotmack
+> ```
+>
+> See [initial-debug.md](initial-debug.md) for the full root cause analysis.
+
 Containerized deployment of [claude-mem](https://github.com/thedotmack/claude-mem) for extracting, indexing, and searching observations from Claude CLI sessions.
 
 claude-mem captures real-time observations (tool usage, code edits, context compaction) and indexes them into a SQLite database with FTS5 search. It exposes an MCP server that Claude Code can call during interactive sessions to retrieve past project context.
